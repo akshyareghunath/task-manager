@@ -1,21 +1,23 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const dotenv = require('dotenv');
-const taskRoutes = require('./routes/taskRoutes');
-
-dotenv.config();
+require('dotenv').config();
+const taskRoutes = require('./routes/tasks');
 
 const app = express();
+const PORT = process.env.PORT || 5000;
+
+// Middleware
 app.use(express.json());
 
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-.then(() => console.log('MongoDB connected'))
-.catch(err => console.error('MongoDB error:', err));
+// Routes
+app.use('/api/tasks', taskRoutes);
 
-app.use('/tasks', taskRoutes);
+// Connect to MongoDB
+mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/taskdb')
+  .then(() => console.log('MongoDB connected'))
+  .catch(err => console.error('MongoDB connection error:', err));
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// Start the server
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
